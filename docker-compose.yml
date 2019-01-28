@@ -1,0 +1,79 @@
+version: '3.4'
+
+services:
+  samba:
+    image: dperson/samba
+    container_name: samba
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+    network_mode: host
+    stdin_open: true
+    tty: true
+    environment:
+      - USERID=1000
+      - GROUPID=1000
+    volumes:
+      - ./shared:/shared
+    command: >
+      -w "WORKGROUP"
+      -s "shared;/shared;yes;no;yes;all;none;;comment1"
+  plex:
+    image: plexinc/pms-docker
+    container_name: plex
+    volumes:
+      - /opt/plex:/config
+      - ./shared/media:/data
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - PLEX_UID=1000
+      - PLEX_GID=1000
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    network_mode: host
+    volumes:
+      - /opt/portainer:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+  pihole:
+    image: pihole/pihole
+    container_name: pihole
+    ports:
+       - 192.168.1.100:53:53/udp
+       - 192.168.1.100:53:53
+       - 192.168.1.100:80:80
+    restart: unless-stopped
+    cap_add: 
+      - NET_ADMIN
+    volumes:
+      - /opt/pihole/etc/pihole:/etc/pihole
+      - /opt/pihole/etc/dnsmasq.d:/etc/dnsmasq.d
+    dns:
+      - 127.0.0.1
+      - 8.8.8.8
+    environment:
+      - ServerIP=192.168.1.100
+      - DNS1=8.8.8.8
+      - DNS2=8.8.4.4
+  steamcache:
+    image: steamcache/steamcache
+    container_name: steamcache 
+    restart: unless-stopped
+    ports:
+      - 192.168.1.99:80:80
+    volumes:
+      - ./steamcache:/data/cache
+      - /opt/steamcache/logs:/data/logs
+  steamcache-dns:
+    image: steamcache/steamcache-dns
+    container_name: steamcache-dns
+    restart: unless-stopped
+    ports:
+      - 192.168.1.99:53:53/udp
+    environment:
+      - UPSTREAM_DNS=192.168.1.100
+      - USE_GENERIC_CACHE=true
+      - LANCACHE_IP=192.168.1.99
