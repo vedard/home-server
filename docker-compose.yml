@@ -9,8 +9,6 @@ services:
       - /tmp
     restart: unless-stopped
     network_mode: host
-    stdin_open: true
-    tty: true
     environment:
       - USERID=1000
       - GROUPID=1000
@@ -22,18 +20,22 @@ services:
   plex:
     image: plexinc/pms-docker
     container_name: plex
+    ports:
+      - 192.168.1.101:80:32400/tcp
     volumes:
       - /opt/plex:/config
       - ./shared/media:/data
-    network_mode: host
     restart: unless-stopped
+    hostname: triceratops
     environment:
+      - ADVERTISE_IP=http://plex.triceratops.local:32400/
       - PLEX_UID=1000
       - PLEX_GID=1000
   portainer:
     image: portainer/portainer
     container_name: portainer
-    network_mode: host
+    ports:
+      - 192.168.1.102:80:9000
     volumes:
       - /opt/portainer:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -42,9 +44,9 @@ services:
     image: pihole/pihole
     container_name: pihole
     ports:
-       - 192.168.1.100:53:53/udp
-       - 192.168.1.100:53:53
-       - 192.168.1.100:80:80
+       - 192.168.1.98:53:53/udp
+       - 192.168.1.98:53:53
+       - 192.168.1.98:80:80
     restart: unless-stopped
     cap_add: 
       - NET_ADMIN
@@ -73,7 +75,26 @@ services:
     restart: unless-stopped
     ports:
       - 192.168.1.99:53:53/udp
+      - 192.168.1.99:53:53
     environment:
-      - UPSTREAM_DNS=192.168.1.100
+      - UPSTREAM_DNS=192.168.1.98
       - USE_GENERIC_CACHE=true
       - LANCACHE_IP=192.168.1.99
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+    hostname: triceratops 
+    ports:
+      - 192.168.1.103:80:19999
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - PGID=115
+    command: >
+      -t 1
