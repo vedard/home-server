@@ -69,6 +69,15 @@ services:
     volumes:
       - ./steamcache:/data/cache
       - /opt/steamcache/logs:/data/logs
+  riotcache:
+    image: steamcache/generic
+    container_name: riotcache 
+    restart: unless-stopped
+    ports:
+      - 192.168.1.104:80:80
+    volumes:
+      - ./riotcache:/data/cache
+      - /opt/riotcache/logs:/data/logs
   steamcache-dns:
     image: steamcache/steamcache-dns
     container_name: steamcache-dns
@@ -78,8 +87,8 @@ services:
       - 192.168.1.99:53:53
     environment:
       - UPSTREAM_DNS=192.168.1.98
-      - USE_GENERIC_CACHE=true
-      - LANCACHE_IP=192.168.1.99
+      - STEAMCACHE_IP=192.168.1.99
+      - RIOTCACHE_IP=192.168.1.104
   netdata:
     image: netdata/netdata
     container_name: netdata
@@ -97,4 +106,4 @@ services:
     environment:
       - PGID=115
     command: >
-      -t 1
+      -t 2

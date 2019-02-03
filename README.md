@@ -8,6 +8,7 @@
 | Plex       | plex.triceratops.local       | 192.168.1.101 |
 | Portainer  | portainer.triceratops.local  | 192.168.1.102 |
 | Netdata    | netdata.triceratops.local    | 192.168.1.103 |
+| RiotCache  | riotcache.triceratops.local  | 192.168.1.104 |
 
 ## DNS topology
 
