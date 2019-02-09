@@ -69,6 +69,21 @@ services:
     volumes:
       - ./steamcache:/data/cache
       - /opt/steamcache/logs:/data/logs
+  origincache:
+    image: steamcache/generic:latest
+    container_name: origincache
+    restart: unless-stopped
+    ports:
+      - 192.168.1.105:80:80
+    volumes:
+      - ./origincache:/data/cache
+      - /opt/origincache/logs:/data/logs
+  origincache-sniproxy:
+    image: steamcache/sniproxy
+    container_name: origincache-sniproxy 
+    restart: unless-stopped
+    ports:
+      - 192.168.1.105:443:443
   riotcache:
     image: steamcache/generic
     container_name: riotcache 
@@ -78,6 +93,12 @@ services:
     volumes:
       - ./riotcache:/data/cache
       - /opt/riotcache/logs:/data/logs
+  riotcache-sniproxy:
+    image: steamcache/sniproxy
+    container_name: riotcache-sniproxy 
+    restart: unless-stopped
+    ports:
+      - 192.168.1.104:443:443
   steamcache-dns:
     image: steamcache/steamcache-dns
     container_name: steamcache-dns
@@ -89,6 +110,7 @@ services:
       - UPSTREAM_DNS=192.168.1.98
       - STEAMCACHE_IP=192.168.1.99
       - RIOTCACHE_IP=192.168.1.104
+      - ORIGINCACHE_IP=192.168.1.105
   netdata:
     image: netdata/netdata
     container_name: netdata
