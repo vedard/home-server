@@ -44,9 +44,9 @@ services:
     image: pihole/pihole
     container_name: pihole
     ports:
-       - 192.168.1.98:53:53/udp
-       - 192.168.1.98:53:53
-       - 192.168.1.98:80:80
+       - 192.168.1.99:53:53/udp
+       - 192.168.1.99:53:53
+       - 192.168.1.99:80:80
     restart: unless-stopped
     cap_add: 
       - NET_ADMIN
@@ -55,17 +55,28 @@ services:
       - /opt/pihole/etc/dnsmasq.d:/etc/dnsmasq.d
     dns:
       - 127.0.0.1
-      - 8.8.8.8
     environment:
-      - ServerIP=192.168.1.100
-      - DNS1=8.8.8.8
-      - DNS2=8.8.4.4
+      - ServerIP=192.168.1.99
+      - DNS1=192.168.1.98
+      - DNS2=no
+  steamcache-dns:
+    image: steamcache/steamcache-dns
+    container_name: steamcache-dns
+    restart: unless-stopped
+    ports:
+      - 192.168.1.98:53:53/udp
+      - 192.168.1.98:53:53
+    environment:
+      - UPSTREAM_DNS=1.1.1.1
+      - STEAMCACHE_IP=192.168.1.98
+      - RIOTCACHE_IP=192.168.1.104
+      - ORIGINCACHE_IP=192.168.1.105
   steamcache:
     image: steamcache/steamcache
     container_name: steamcache 
     restart: unless-stopped
     ports:
-      - 192.168.1.99:80:80
+      - 192.168.1.98:80:80
     volumes:
       - ./steamcache:/data/cache
       - /opt/steamcache/logs:/data/logs
@@ -99,18 +110,6 @@ services:
     restart: unless-stopped
     ports:
       - 192.168.1.104:443:443
-  steamcache-dns:
-    image: steamcache/steamcache-dns
-    container_name: steamcache-dns
-    restart: unless-stopped
-    ports:
-      - 192.168.1.99:53:53/udp
-      - 192.168.1.99:53:53
-    environment:
-      - UPSTREAM_DNS=192.168.1.98
-      - STEAMCACHE_IP=192.168.1.99
-      - RIOTCACHE_IP=192.168.1.104
-      - ORIGINCACHE_IP=192.168.1.105
   netdata:
     image: netdata/netdata
     container_name: netdata
