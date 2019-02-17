@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
     hostname: triceratops
     environment:
-      - ADVERTISE_IP=http://plex.triceratops.local:32400/
+      - ALLOWED_NETWORKS=192.168.1.0/24
       - PLEX_UID=1000
       - PLEX_GID=1000
   portainer:
@@ -43,6 +43,7 @@ services:
   pihole:
     image: pihole/pihole
     container_name: pihole
+    hostname: triceratops
     ports:
        - 192.168.1.99:53:53/udp
        - 192.168.1.99:53:53
@@ -59,6 +60,7 @@ services:
       - ServerIP=192.168.1.99
       - DNS1=192.168.1.98
       - DNS2=no
+      - WEBPASSWORD=
   steamcache-dns:
     image: steamcache/steamcache-dns
     container_name: steamcache-dns
@@ -78,7 +80,7 @@ services:
     ports:
       - 192.168.1.98:80:80
     volumes:
-      - ./steamcache:/data/cache
+      - ./cache/steam:/data/cache
       - /opt/steamcache/logs:/data/logs
   origincache:
     image: steamcache/generic:latest
@@ -87,7 +89,7 @@ services:
     ports:
       - 192.168.1.105:80:80
     volumes:
-      - ./origincache:/data/cache
+      - ./cache/origin:/data/cache
       - /opt/origincache/logs:/data/logs
   origincache-sniproxy:
     image: steamcache/sniproxy
@@ -102,7 +104,7 @@ services:
     ports:
       - 192.168.1.104:80:80
     volumes:
-      - ./riotcache:/data/cache
+      - ./cache/riot:/data/cache
       - /opt/riotcache/logs:/data/logs
   riotcache-sniproxy:
     image: steamcache/sniproxy
